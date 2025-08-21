@@ -1,0 +1,80 @@
+---
+title: "Final Project"
+output:
+  pdf_document: default
+  html_document: default
+date: "2025-07-14"
+---
+
+
+```{r setup, include=FALSE}
+
+# Reading the gene data from file by setting working directory
+setwd("~/Desktop/QBS 103 material/Final project/")
+genes<- read.csv("QBS103_GSE157103_genes.csv", header = TRUE)
+# Read participant data from file
+matrix<- read.csv("QBS103_GSE157103_series_matrix-1.csv", header = TRUE)
+```
+
+
+```{r}
+# Transposing the gene data to make rows participant data
+genes_trans <- as.data.frame(t(genes))
+colnames(genes_trans) <- as.character(genes_trans[1,])
+genes_trans <- genes_trans[-1,]
+
+# Merge gene data with participant data
+genes_trans$participant_id <- rownames(genes_trans)
+rownames(matrix)<- matrix$participant_id
+merged_df <- merge(genes_trans, matrix , by = "row.names")
+colnames(merged_df)[1] <- "participant_id"
+
+```
+
+```{r}
+### Selecting a gene and 3 covariates
+selected_cov <- c("age", "sex", "disease_status", "AANAT")
+subset_merged <- merged_df[,selected_cov]
+subset_merged$age <- as.numeric(subset_merged$age)
+subset_merged$AANAT <- as.numeric(subset_merged$AANAT)
+subset_merged <- na.omit(subset_merged)
+
+```
+
+```{r}
+library(ggplot2)
+subset_merged$ABHD17B <- as.numeric(subset_merged$ABHD17B)
+
+ggplot(subset_merged, aes(x = ABHD17B)) + 
+  geom_histogram(binwidth = 2.0, fill = "steelblue", color = "black") +
+  labs(title = "Gene Expression of ABHD17B", x = "ABHD17B", y = "Count")
+```
+
+
+```{r}
+custom_palette <- c("#E63946", "#F1FAEE", "#A8DADC", "#457B9D")
+ggplot(subset_merged, aes(x = age, y = ABHD17B)) +
+  geom_point(color = 'maroon') +
+  labs(title = "Scatterplot b/w Gene expression and Age", y = "Gene expression Value of ABHD17B", x = "Age")+
+        theme_classic(base_family = 'Times new roman',base_size = 14) +
+  theme(panel.border = element_blank(), 
+        plot.title = element_text(hjust = 0.5),
+        panel.grid.major = element_line(color = "gray80", size = 0.3),
+        panel.grid.minor = element_line(color = "gray80", size = 0.3), 
+        # Define my axis
+        axis.line = element_line(colour = "black", linewidth = rel(1)),
+        # Set plot background
+        plot.background = element_rect(fill = "skyblue"),
+        panel.background = element_blank())
+        
+```
+
+
+```{r}
+ggplot(subset_merged, aes(x = sex, y =AANAT, fill = disease_status)) +
+  geom_boxplot() +
+  labs(title = "AANAT Gene Expression by Sex and Disease Status",
+       x = "Sex", y = "AANAT Gene Expression")
+```
+
+

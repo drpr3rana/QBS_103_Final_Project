@@ -1,0 +1,101 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+---
+title: "Submission 2"
+output: pdf_document
+
+
+```{r}
+#I called the relevant library and set my working directory
+library(ggplot2)
+setwd("~/Desktop/QBS 103 material/Final project/")
+library(ggplot2)
+library(scales)  #I used the alpha function to change the transparency of the scatterplot background
+
+plotify <- function(data_frame, cont_var, cat_var1, cat_var2, gene_list) {
+ # To load the data frame
+  data_frame <- read.csv(data_frame)
+  
+  # Convert variables to required types
+  data_frame[[cat_var1]] <- as.factor(data_frame[[cat_var1]])
+  data_frame[[cat_var2]] <- as.factor(data_frame[[cat_var2]])
+  data_frame[[cont_var]] <- as.numeric(data_frame[[cont_var]])
+  
+  for (gene in gene_list) {
+    data_frame[[gene]] <- as.numeric(data_frame[[gene]])
+    
+    # Histogram
+    print(
+      ggplot(data_frame, aes_string(x = gene)) +
+        geom_histogram(binwidth = 1, fill = "lightblue", color = "white") +
+        labs(title = paste("Histogram of", gene),
+             x = gene, y = "Count") +
+        theme_minimal() +
+        theme(plot.title = element_text(hjust = 0.5))
+    )
+    
+    # Scatter plot with continuous covariate
+    print(
+      ggplot(data_frame, aes_string(x = cont_var, y = gene)) +
+        geom_point(color = "darkgreen", size = 2) +
+        labs(title = paste("Scatter plot of", gene, "vs", cont_var),
+             x = cont_var, y = gene) +
+        theme_minimal() +
+        theme(
+          plot.title = element_text(hjust = 0.5),
+          panel.grid.major = element_line(color = "gray80", size = 0.3),
+          panel.grid.minor = element_line(color = "gray80", size = 0.3),
+          plot.background = element_rect(fill = alpha("skyblue", 0.3))
+        )
+    )
+    
+    # Boxplot for first categorical variable
+    print(
+      ggplot(data_frame, aes_string(x = cat_var1, y = gene)) +
+        geom_boxplot(fill = "orange") +
+        labs(title = paste("Boxplot of", gene, "by", cat_var1),
+             x = cat_var1, y = gene) +
+        theme_minimal() +
+        theme(plot.title = element_text(hjust = 0.5))
+    )
+    
+    # Boxplot for second categorical variable
+    print(
+      ggplot(data_frame, aes_string(x = cat_var2, y = gene)) +
+        geom_boxplot(fill = "maroon") +
+        labs(title = paste("Boxplot of", gene, "by", cat_var2),
+             x = cat_var2, y = gene) +
+        theme_minimal() +
+        theme(plot.title = element_text(hjust = 0.5))
+    )
+  }
+}
+
+#Then I plugged in my gene data and data frame from submission 1 into the function
+            
+setwd("~/Desktop/QBS 103 material/Final project/")
+plotify(data_frame = "merged_data.csv",
+        cont_var = "age",
+        cat_var1 = "sex",
+        cat_var2 = "disease_status",
+        gene_list = c("ABHD17B", "AAMDC"))
+            
+```
+
+
+```{r}
+gene_list<- list("ABHD17B", "AAAS", "AANAT")
+ for (i in gene_list) {
+  plotify(data_frame = "merged_data.csv",
+        cont_var = "age",
+        cat_var1 = "sex",
+        cat_var2 = "disease_status",
+        gene_list = gene_list)
+}
+```
+
+ 
+```
